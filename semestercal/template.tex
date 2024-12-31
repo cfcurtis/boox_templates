@@ -77,10 +77,11 @@ bottom=42mm,
 
 \newcommand{\shadedate}[1]{\fill [#1, opacity=0.025, xshift=-13.5, yshift=-3] rectangle (0.46,0.4);}
 \newcommand{\specialdates}{
-  if (equals=2024-09-05) {\shadedate{green}} % first day of class
-  if (equals=2024-12-09) {\shadedate{green}} % last day of class
-  if (between=2024-10-14 and 2024-10-18) {\shadedate{blue}} % Reading week
-  if (equals=2024-04-01) {\shadedate{blue}} % Easter Monday
+  if (equals=2025-01-06) {\shadedate{green}} % first day of class
+  if (equals=2025-04-07) {\shadedate{green}} % last day of class
+  if (between=2025-02-17 and 2025-02-21) {\shadedate{blue}} % Reading week
+  if (equals=2025-04-18) {\shadedate{blue}} % Good Friday
+  if (equals=2025-04-21) {\shadedate{blue}} % Easter Monday
   if (equals=09-30) {\shadedate{blue}} % truth and reconciliation day
   if (equals=11-11) {\shadedate{blue}} % Remembrance day
 }
@@ -103,13 +104,13 @@ bottom=42mm,
 \pagestyle{fancy}
 \fancyhf{} % clear the default header/footer
 \fancyhead[L]{\LARGE{Week}}
-\fancyhead[R]{\LARGE{Fall 2024}}
+\fancyhead[R]{\LARGE{Winter 2025}}
 \fancyfoot{
 \begin{tabular}[t]{cccc}
-  \minimonth{2024-09} & %
-  \minimonth{2024-10} & %
-  \minimonth{2024-11} & %
-  \minimonth{2024-12} 
+  \minimonth{2025-01} & %
+  \minimonth{2025-02} & %
+  \minimonth{2025-03} & %
+  \minimonth{2025-04} 
 \end{tabular}
 }
 \renewcommand{\footrulewidth}{0.5pt}
