@@ -11,13 +11,14 @@ def main(csv_path: Path):
         for line in f:
             toks = line.strip().split(",")
             last, first = toks[1:3]
-            group = toks[4]
+            group = toks[3]
             names.append(f"{first} {last} ({group})")
+            # names.append(f"{first} {last}")
     names.sort(key=str.lower)
     outfile = csv_path.with_suffix(".tex")
     ncols = 0
     with open(TEX_TEMPLATE, "r") as tt:
-        with open(outfile, "w") as out:
+        with open(outfile, "w", encoding="utf8") as out:
             for line in tt:
                 if r"\begin{xltabular}" in line:
                     ncols = line.count("X")
