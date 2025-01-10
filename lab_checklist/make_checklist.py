@@ -6,14 +6,19 @@ TEX_TEMPLATE = "template.tex"
 
 def main(csv_path: Path):
     with open(csv_path, "r") as f:
-        f.readline()
+        header = f.readline()
+        has_group = False
+        if "group" in header.lower():
+            has_group = True
         names = []
         for line in f:
             toks = line.strip().split(",")
             last, first = toks[1:3]
-            group = toks[3]
-            names.append(f"{first} {last} ({group})")
-            # names.append(f"{first} {last}")
+            if has_group:
+                group = toks[3]
+                names.append(f"{first} {last} ({group})")
+            else:
+                names.append(f"{first} {last}")
     names.sort(key=str.lower)
     outfile = csv_path.with_suffix(".tex")
     ncols = 0
