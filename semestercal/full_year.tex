@@ -13,9 +13,10 @@ bottom=42mm,
 \usepackage{tikz}
 \usetikzlibrary{calendar}
 \usepackage{adjustbox}
+\usepackage[hidelinks]{hyperref}
 \setlength{\parindent}{0pt}
 
-\makeatletter%
+\makeatletter
 
 % Day headings from https://tex.stackexchange.com/questions/10186/weekday-captions-with-the-tikz-library-calendar
 \tikzoption{day headings}{\tikzstyle{day heading}=[#1]}
@@ -77,20 +78,23 @@ bottom=42mm,
 
 \newcommand{\shadedate}[1]{\fill [#1, opacity=0.025, xshift=-13.5, yshift=-3] rectangle (0.46,0.4);}
 \newcommand{\specialdates}{
-  if (equals=2025-01-06) {\shadedate{green}} % first day of class
-  if (equals=2025-04-07) {\shadedate{green}} % last day of class
-  if (between=2025-02-17 and 2025-02-21) {\shadedate{blue}} % Reading week
-  if (equals=2025-04-18) {\shadedate{blue}} % Good Friday
-  if (equals=2025-04-21) {\shadedate{blue}} % Easter Monday
+  if (equals=2025-09-04) {\shadedate{green}} % first day of class
+  if (equals=2026-01-06) {\shadedate{green}} % first day of class
+  if (equals=2025-12-09) {\shadedate{green}} % last day of class
+  if (equals=2026-04-13) {\shadedate{green}} % last day of class
+  if (between=2025-10-13 and 2025-10-17) {\shadedate{blue}} % Reading week
+  if (between=2026-02-16 and 2026-02-20) {\shadedate{blue}} % Reading week
   if (equals=09-30) {\shadedate{blue}} % truth and reconciliation day
-  if (equals=11-11) {\shadedate{blue}} % Remembrance day
-  if (equals=2025-05-19) {\shadedate{blue}} % May long
-  if (equals=07-01) {\shadedate{blue}} % Canada day
-  if (equals=2025-08-04) {\shadedate{blue}} % Heritage day
   if (equals=2025-09-01) {\shadedate{blue}} % Labour day
+  if (equals=11-11) {\shadedate{blue}} % Remembrance day
+  if (equals=2026-04-03) {\shadedate{blue}} % Good Friday
+  if (equals=2026-04-06) {\shadedate{blue}} % Easter Monday
+  if (equals=2026-05-18) {\shadedate{blue}} % May long
+  if (equals=07-01) {\shadedate{blue}} % Canada day
+  if (equals=2026-08-03) {\shadedate{blue}} % Heritage day
 }
 
-\newcommand{\minimonth}[1]{%
+\newcommand{\minimonth}[2]{%
 \adjustbox{valign=t}{\footnotesize{
   \tikz
   []
@@ -99,32 +103,27 @@ bottom=42mm,
   day letter headings,
   day headings=purple,
   month label above centered,
-  every month/.append style={yshift=1.2em}] if (Saturday, Sunday) [teal] \specialdates;
+  day text={%
+    \edef\dom{\the\numexpr\pgfcalendarcurrentday\relax}%
+    \pgfmathparse{Mod(1+ \pgfcalendarcurrentweekday - Mod(\dom,7), 7)}%
+    \let\offset\pgfmathresult%
+    \pgfmathparse{int(#2 + floor((\dom + \offset) / 7))}%
+    \let\weeknum\pgfmathresult%
+    \hyperlink{page.\weeknum}{\dom}},
+  every month/.append style={yshift=1.2em}] 
+  if (Saturday, Sunday) [teal] 
+  \specialdates;
 }}
 }
 
-% Header stuff
-\usepackage{fancyhdr}
-\pagestyle{fancy}
-\fancyhf{} % clear the default header/footer
-\fancyhead[L]{\LARGE{Week}}
-\fancyhead[R]{\LARGE{Spring/Summer 2025}}
-\fancyfoot{
-\begin{tabular}[t]{cccc}
-  \minimonth{2025-05} & %
-  \minimonth{2025-06} & %
-  \minimonth{2025-07} & %
-  \minimonth{2025-08} 
-\end{tabular}
-}
-\renewcommand{\footrulewidth}{0.5pt}
-\renewcommand{\headrulewidth}{0.5pt}
-
-\begin{document}
+\newcommand{\weekpage}[3]{%
+\fancyhead[L]{\LARGE{Week #1}}
+\fancyhead[C]{\LARGE\textit{#2}}
+\fancyhead[R]{\LARGE{#3}}
 \begin{minipage}{0.5\textwidth}
   \vspace{-0.25cm}
   \begin{tikzpicture}
-      \foreach \row in {0,1,...,15}
+      \foreach \row in {0,1,...,14}
     {
       \draw[yshift=\row cm + 0.5cm, black!60, thin] (0,0) rectangle (0.4,0.4);
       \draw[yshift=\row cm + 0.25cm, black!60, thin] (.6,0) -- (\textwidth,0);
@@ -134,11 +133,77 @@ bottom=42mm,
 \begin{minipage}{0.5\textwidth}
   \begin{tikzpicture}
     \foreach \x in {0,0.25,0.5,...,3} {
-        \foreach \y in {0,0.25,0.5,...,6} {
+        \foreach \y in {0,0.25,0.5,...,5.75} {
             \fill[color=black!40] (\x in,\y in) circle (0.75pt);
         }
     }
 \end{tikzpicture}
 \end{minipage}
+}
+
+\global\let\mondaydate\undefined
+\newcounter{semesterweek}
+\newcommand{\rendersemester}[4]{%
+  \setcounter{semesterweek}{0}
+  \pgfcalendar{}{#2}{#3}{%
+    % every monday, create a new weekly page
+    \ifdate{Monday}{%
+      \xdef \mondaydate {\pgfcalendarmonthshortname{\pgfcalendarcurrentmonth} \number\pgfcalendarcurrentday}
+    }{}
+
+    \ifdate{Friday}{%
+      \ifx\mondaydate\undefined\else
+        \weekpage{\thesemesterweek}{\mondaydate \hspace{.1em} -- \pgfcalendarmonthshortname{\pgfcalendarcurrentmonth} \number\pgfcalendarcurrentday}{#1}
+        \newpage
+        \global\let\mondaydate\undefined
+        \addtocounter{semesterweek}{1}
+      \fi
+    }{}
+  }
+}
+
+% Header stuff
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{} % clear the default header/footer
+\setlength{\headheight}{22pt}
+\setlength{\headsep}{20pt}
+\renewcommand{\footrulewidth}{0.5pt}
+\renewcommand{\headrulewidth}{0.5pt}
+
+% Fall 2025 mini calendar
+\fancyfoot{
+\begin{tabular}[t]{cccc}
+  \minimonth{2025-09}{1} & %
+  \minimonth{2025-10}{5} & %
+  \minimonth{2025-11}{9} & %
+  \minimonth{2025-12}{14} 
+\end{tabular}
+}
+
+\begin{document}
+\rendersemester{Fall 2025}{2025-09-01}{2025-12-31}
+
+% Winter 2026
+\fancyfoot{
+\begin{tabular}[t]{cccc}
+  \minimonth{2026-01}{18} & %
+  \minimonth{2026-02}{22} & %
+  \minimonth{2026-03}{26} & %
+  \minimonth{2026-04}{31} 
+\end{tabular}
+}
+\rendersemester{Winter 2026}{2026-01-01}{2026-04-30}
+
+% Spring-Summer 2026
+\fancyfoot{
+\begin{tabular}[t]{cccc}
+  \minimonth{2026-05}{35} & %
+  \minimonth{2026-06}{40} & %
+  \minimonth{2026-07}{44} & %
+  \minimonth{2026-08}{48} 
+\end{tabular}
+}
+\rendersemester{Summer 2026}{2026-05-01}{2026-08-31}
 
 \end{document}
